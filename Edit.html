@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script>
+      function showConfirmation( failed ) {
+        if(!failed){
+          document.getElementById('body').innerHTML = "<h2>- REGISTRO INSERIDO -</h2><BR>A página será carrega automaticamente. Caso não funcione, recarre-a manualmente.";
+          alert("- REGISTRO INSERIDO COM SUCESSO -");
+          location.replace( 'https://script.google.com/macros/s/AKfycbykt6vlllcu3gCaRPgLctSd8xV2Ka2tR_eWqCvnuLNo/dev' );
+        }
+        else{
+          if(failed==1)//Datos incompletos
+            document.getElementById('body').innerHTML = "- ATUALIZAÇÃO NEGADA - DADOS INCOMPLETOS - <br> recarrega a página e preencha TODOS os campos.";
+          if(failed==99)//Usuário não convidado
+            document.getElementById('body').innerHTML = "- ATUALIZAÇÃO NEGADA - VOCÊ NÃO FOI CONVIDADO - <br> seus email não consta na Base de Dados.";
+        }
+      }
+
+      function onFailure(error) {
+        var div = document.getElementById('body');
+        div.innerHTML = "ERROR: " + error.message;
+      }
+      
+      function getUserEmail(email){
+        return email;
+      }
+      
+      function mountJsonData( ){
+//        alert(google.script.run.withSuccessHandler(getUserEmail)
+//          .getEmail());
+        var myObj = { /*"emailPadrinho":document.getElementById('emailPadrinho').value,
+                      "email":document.getElementById('email').value,*/
+                      "nome":document.getElementById('nome').value,
+                      "telefone":document.getElementById('telefone').value,
+                      "cpf":document.getElementById('cpf').value,
+                      "cidade":document.getElementById('cidade').value};
+        var myJSON = JSON.stringify(myObj);
+        return myJSON;
+      }
+
+    </script>
+  </head>
+  
+  <body id="body"><font face="Verdana">
+  <div id="logo">
+
+    <h1 id="titulo">Contruindo Uma Nova Brasília</h1>
+    <h3 id="subtitulo">Substitua os dados abaixo e confirme as alterações!</h3><br>
+
+    <form>
+      <label for="nome">Nome</label><br>
+      <input id="nome" type="text" placeholder="Entre seu nome completo para evitar cognatos">
+      <br>
+      <label for="telefone">Telefone</label><br>
+      <input id="telefone" type="tel" placeholder="De preferência, use ao telefone do WhatsApp">
+      <br>
+      <label for="cpf">CPF</label><br>
+      <input id="cpf" type="text" placeholder="Entre o número sem pontos, espaços ou divisores">
+      <br>
+      <label for="cidade">Cidade</label><br>
+      <select id="cidade">
+        <option>Plano Piloto</option>
+        <option>Gama</option>
+        <option>Taguatinga</option>
+        <option>Brazlândia</option>
+        <option>Sobradinho</option>
+        <option>Planaltina</option>
+        <option>Paranoá</option>
+        <option>Núcleo Bandeirante</option>
+        <option>Ceilândia</option>
+        <option>Guará</option>
+        <option>Cruzeiro</option>
+        <option>Samambaia</option>
+        <option>Santa Maria</option>
+        <option>São Sebastião</option>
+        <option>Recanto das Emas</option>
+        <option>Lago Sul</option>
+        <option>Riacho Fundo</option>
+        <option>Lago Norte</option>
+        <option>Candangolândia</option>
+        <option>Águas Claras</option>
+        <option>Riacho Fundo II</option>
+        <option>Sudoeste/Octogonal</option>
+        <option>Varjão</option>
+        <option>park Way</option>
+        <option>SCIA</option>
+        <option>Sobradinho II</option>
+        <option>Jardim Botânico</option>
+        <option>Itapoã</option>
+        <option>SIA</option>
+        <option>Vicente Pires</option>
+        <option>Fercal</option>
+        <option>Outro</option>
+      </select>
+      <br><br>
+    </form>
+    <button class="button registrar"
+      onclick="google.script.run
+        .withSuccessHandler(showConfirmation)
+        .updateData( mountJsonData() );">Atualizar</button>
+  
+  <br><br><br><br>
+  </div>
+  </font></body>
+
+  <script>
+    function showUser(user) {
+      document.getElementById('nome').value = user.name;
+      document.getElementById('telefone').value = user.tel; 
+      document.getElementById('cpf').value = user.cpf; 
+      document.getElementById('cidade').value = user.city; 
+    }
+    google.script.run.withSuccessHandler(showUser).getUser();
+  </script>
+
+</html>
+
+
+
+
+
+
+
