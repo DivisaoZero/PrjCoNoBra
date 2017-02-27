@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script>
+      function showConfirmation( failed ) {
+        if(!failed){
+          document.getElementById('body').innerHTML = "<h2>- REGISTRO INSERIDO -</h2><BR>A página será carrega automaticamente. Caso não funcione, recarre-a manualmente.";
+          alert("- REGISTRO INSERIDO COM SUCESSO -");
+          location.replace( 'https://script.google.com/macros/s/AKfycbykt6vlllcu3gCaRPgLctSd8xV2Ka2tR_eWqCvnuLNo/dev' );
+        }
+        else{
+          if(failed==1)//Datos incompletos
+            document.getElementById('body').innerHTML = "- REGISTRO NEGADO - DADOS INCOMPLETOS - <br> recarrega a página e preencha TODOS os campos.";
+          if(failed==98)//Usuário já cadastrado
+            document.getElementById('body').innerHTML = "- REGISTRO NEGADO - VOCÊ JÁ ESTÁ CADASTRO - <br> acesso o aplicativo web para ver seus dados.";
+          if(failed==99)//Usuário não convidado
+            document.getElementById('body').innerHTML = "- REGISTRO NEGADO - VOCÊ NÃO FOI CONVIDADO - <br> procure seu padrinho, confirme o envio e também o e-mail de ambos.";
+        }
+      }
+
+      function onFailure(error) {
+        var div = document.getElementById('body');
+        div.innerHTML = "ERROR: " + error.message;
+      }
+      
+      function getUserEmail(email){
+        return email;
+      }
+      
+      function mountJsonData( ){
+        //chama o método showEmail + parâmetro getEmail()
+        /*var e = google.script.run.withSuccessHandler(getEmail)
+                  .getEmail();
+        alert(e);
+        */
+        alert(google.script.run.withSuccessHandler(getUserEmail)
+               .getEmail());
+        var myObj = { /*"emailPadrinho":document.getElementById('emailPadrinho').value,
+                      "email":document.getElementById('email').value,*/
+                      "nome":document.getElementById('nome').value,
+                      "telefone":document.getElementById('telefone').value,
+                      "cpf":document.getElementById('nome').value,
+                      "cidade":document.getElementById('cidade').value};
+        var myJSON = JSON.stringify(myObj);
+        return myJSON;
+      }
+
+    </script>
+  </head>
+  <style>
+    #logo{
+      background-image: url(https://lh3.googleusercontent.com/ffmou7NNhFQfQ3K7YvDW8pxpjpmzkab8EzI3qJ3E40KmF72tRJmn72Sw_s7qNCSQKoSUMNo6_ufBCpg=w1280-h956), url(https://lh3.googleusercontent.com/c-S_RuchaWSxSLyDnFL2tFDTILau5z7fFbwVDQjnP8pmtgJmbLrb0MuVsvhhQo4PVIHoH1gXxHONKbk=w1280-h956);
+      background-size: 120px 80px, 40px 40px;
+      background-position: center top, center bottom;
+      background-repeat: no-repeat, no-repeat;
+    }
+    #titulo{ color: white; text-shadow: 2px 2px 5px blue;}
+    #subtitulo{ color: white; text-shadow: 2px 2px 5px blue;}
+    #body{ text-align: center; }
+
+    input[type=text], [type=email], [type=tel], select {
+      font-size: 20px;
+      width: 90%;
+      padding: 10px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      background-color: rgb(204, 204, 255);
+      text-align-last:center;      <!--Usado exclusivamatne no select-->
+    }
+
+    .button{
+      /*background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      padding: 16px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 22px;
+      margin: 4px 2px;
+      -webkit-transition-duration: 0.4s; /* Safari */
+      transition-duration: 0.4s;
+      cursor: pointer;
+    }
+    .registrar {
+      background-color: white; 
+      width: 50%;
+      color: black; 
+      border: 2px solid #008CBA;
+    }
+    .registrar:hover {
+      background-color: #008CBA;
+      color: white;
+    }
+  </style>
+  <body id="body"><font face="Verdana">
+  <div id="logo">
+
+    <h1 id="titulo">Contruindo Uma Nova Brasília</h1>
+    <h3 id="subtitulo">Você foi convidado para participar deste projeto. Preencha TODOS os dados abaixo e seja bem vindo!</h3><br>
+
+    <form>
+<!-- Retirado apra deixar a aplicação mais inteligente. Não se deve informar dados que já tenhamos. O acesso já foi verificado via Google.
+      <label for="emailPadrinho">E-mail do seu padrinho</label>
+      <input id="emailPadrinho" type="email" placeholder="A pessoa quem lhe convidou é seu padrinho" value="..." disabled>
+      <br>
+      <label for="email">E-mail</label><br>
+      <input id="email" type="email" placeholder="O email do qual recebeu o convite" value="me@com.com"; disabled>
+      <br>
+-->
+      <label for="nome">Nome</label><br>
+      <input id="nome" type="text" placeholder="Entre seu nome completo para evitar cognatos">
+      <br>
+      <label for="telefone">Telefone</label><br>
+      <input id="telefone" type="tel" placeholder="De preferênci o telefone do WhatsApp">
+      <br>
+      <label for="cpf">CPF</label><br>
+      <input id="cpf" type="text" placeholder="Entre o número sem pontos, espaços ou divisores">
+      <br>
+      <label for="cidade">Cidade</label><br>
+      <select id="cidade">
+        <option>Plano Piloto</option>
+        <option>Gama</option>
+        <option>Taguatinga</option>
+        <option>Brazlândia</option>
+        <option>Sobradinho</option>
+        <option>Planaltina</option>
+        <option>Paranoá</option>
+        <option>Núcleo Bandeirante</option>
+        <option>Ceilândia</option>
+        <option>Guará</option>
+        <option>Cruzeiro</option>
+        <option>Samambaia</option>
+        <option>Santa Maria</option>
+        <option>São Sebastião</option>
+        <option>Recanto das Emas</option>
+        <option>Lago Sul</option>
+        <option>Riacho Fundo</option>
+        <option>Lago Norte</option>
+        <option>Candangolândia</option>
+        <option>Águas Claras</option>
+        <option>Riacho Fundo II</option>
+        <option>Sudoeste/Octogonal</option>
+        <option>Varjão</option>
+        <option>park Way</option>
+        <option>SCIA</option>
+        <option>Sobradinho II</option>
+        <option>Jardim Botânico</option>
+        <option>Itapoã</option>
+        <option>SIA</option>
+        <option>Vicente Pires</option>
+        <option>Fercal</option>
+        <option>Outro</option>
+      </select>
+      <br><br>
+    </form>
+    <button class="button registrar"
+      onclick="google.script.run
+        .withSuccessHandler(showConfirmation)
+        .addData( mountJsonData() );">Registrar</button>
+  
+  <br><br><br><br>
+  </div>
+  </font></body>
+</html>
+
+
+
+
+
+
