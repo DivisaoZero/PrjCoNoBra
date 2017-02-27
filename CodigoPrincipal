@@ -1,0 +1,231 @@
+/*-----------------------------------------------*/
+/**
+ * Get the URL for the Google Apps Script running as a WebApp.
+ */
+function getScriptUrl() { return ScriptApp.getService().getUrl(); }
+
+/**
+ * Get "home page", or a requested page.
+ * Expects a 'page' parameter in querystring.
+ *
+ * @param {event} e Event passed to doGet, with querystring
+ * @returns {String/html} Html to be served
+ */
+function doGet(e) {
+  Logger.log( Utilities.jsonStringify(e) );
+  if (e.parameter.page) {
+    // else, use page parameter to pick an html file from the script
+    return HtmlService.createTemplateFromFile(e.parameter['page']).evaluate();
+  }
+  
+  var email = Session.getActiveUser().getEmail();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataBase") );
+
+  //Procurar usuário, pelo email logado, na base de dados [DataBase].
+  for(var c = 1; c <= sheet.getLastRow(); c++ )
+    if( sheet.getRange(c,2).getValue() == email )
+      return HtmlService.createTemplateFromFile('Principal').evaluate();
+
+  //Procurar usuário, pelo email logado, na lista de convidados [Invites].
+  sheet = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Invites") );
+  for(var c = 1; c <= sheet.getLastRow(); c++ )
+    if( sheet.getRange(c,2).getValue() == email )
+      return HtmlService.createTemplateFromFile('Cadastrar').evaluate();
+  
+  //Usuário não foi encontrado, logo não possui permissão de acesso.
+  return HtmlService.createTemplateFromFile('SemRegistro').evaluate();
+}
+
+function getEmail() {
+  Logger.log( Session.getActiveUser().getEmail() );
+  return Session.getActiveUser().getEmail();
+}
+
+function getName() {
+  var email = Session.getActiveUser().getEmail();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataBase") );
+  var lines = sheet.getLastRow();
+  var c = 1;
+  while(c <= lines){
+    if(sheet.getRange(c,2).getValue() == email)
+      return sheet.getRange(c,3).getValue();
+    c++;
+  }
+  
+  return "???";
+}
+function getNetwork() {
+
+  var email = Session.getActiveUser().getEmail();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataBase") );
+  var network = [];
+  var lines = sheet.getLastRow();
+  var c = 1;
+  while(c <= lines){
+    if(sheet.getRange(c,1).getValue() == email){
+      var person = { row:   c,
+                     email: sheet.getRange(c,2).getValue(), 
+                     name:  sheet.getRange(c,3).getValue(), 
+                     tel:   sheet.getRange(c,4).getValue(),
+                     cpf:   sheet.getRange(c,5).getValue(),
+                     city:  sheet.getRange(c,6).getValue()
+                   };
+      network.push(person);
+    }
+    c++;
+  }
+  return network;
+  
+}
+function getUser(){
+  var email = Session.getActiveUser().getEmail();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataBase") );
+  for(var c=1; c <= sheet.getLastRow(); c++)
+    if(sheet.getRange(c,2).getValue() == email)
+      return person = { row:       c,
+                        godfather: sheet.getRange(c,1).getValue(), 
+                        email:     sheet.getRange(c,2).getValue(), 
+                        name:      sheet.getRange(c,3).getValue(), 
+                        tel:       sheet.getRange(c,4).getValue(),
+                        cpf:       sheet.getRange(c,5).getValue(),
+                        city:      sheet.getRange(c,6).getValue()
+                   };
+    
+  
+}
+function addNewSonEmail( email ){
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Invites") );
+  sheet.insertRowsAfter(sheet.getLastRow(), 1);
+  sheet.getRange(sheet.getLastRow()+1,1).setValue( Session.getActiveUser().getEmail() );
+  sheet.getRange(sheet.getLastRow(),2).setValue( email );
+  var message = "Você recebeu um convite. Acesse https://sites.google.com/view/prjconobra";
+  var subject = "Construindo Uma Nova Brasília";
+  try {
+    MailApp.sendEmail(email, subject, message);
+  }
+  catch(err) {
+    return 1;
+  }
+  return 0;
+}
+
+function addData( jsonData ){
+  Logger.log( jsonData );
+  var data = JSON.parse( jsonData );
+  var email = Session.getActiveUser().getEmail();
+  var emailGodfather;
+  if(data.emailPadrinho != "" && data.email != "" && data.nome != "" && data.telefone != "" && data.cpf != "" && data.cidade != ""){
+  //if(data.emailPadrinho != "" && data.email != ""){
+
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Invites") );
+    var sheetDB = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataBase") );
+    
+    //Procurar o email a ser cadastrado na lista de convidados: Só pode se cadastrar se tiver um convite.
+    var c = 1;
+    var find = 0;
+    while( c <= sheet.getLastRow() ){
+      if( sheet.getRange(c,2).getValue() == email ){
+        //convite encontrado.
+        emailGodfather = sheet.getRange(c,1).getValue();
+        sheet.deleteRow( c );
+        var line = sheetDB.getLastRow()+1;
+        sheetDB.insertRowsAfter(line, 1); // Inserir nova linha
+        sheetDB.getRange(line,1).setValue( emailGodfather );
+        sheetDB.getRange(line,2).setValue( email );
+        sheetDB.getRange(line,3).setValue( data.nome );
+        sheetDB.getRange(line,4).setValue( data.telefone );
+        sheetDB.getRange(line,5).setValue( data.cpf );
+        sheetDB.getRange(line,6).setValue( data.cidade );
+        
+        return 0;
+      }
+      c++;
+    }
+    //Convite não encontrado...
+    //procurar o email na Base: Conferir se já está cadatrado.
+    var c = 1;
+    while( c <= sheetDB.getLastRow() ){
+      if( sheetDB.getRange(c,2).getValue() == data.email )
+        return 98;//Usuário já cadatrado
+      c++;
+    }
+    return 99;//Registro não encontrado: Usuário não convidado.
+  }
+  else
+    return 1;//Registo imcompleto: Dados incompletos para cadastro.
+  
+}
+
+function updateData( jsonData ){
+  Logger.log( jsonData );
+  var data = JSON.parse( jsonData );
+  var email = Session.getActiveUser().getEmail();
+  if(data.emailPadrinho != "" && data.email != "" && data.nome != "" && data.telefone != "" && data.cpf != "" && data.cidade != ""){
+    var sheetDB = SpreadsheetApp.getActiveSpreadsheet().setActiveSheet( SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataBase") );
+    
+    //Procurar o email a ser atualizado na base de dados.
+    for(var c=1; c <= sheetDB.getLastRow(); c++)
+      if(sheetDB.getRange(c,2).getValue() == email){
+        sheetDB.getRange(c,3).setValue( data.nome );
+        sheetDB.getRange(c,4).setValue( data.telefone );
+        sheetDB.getRange(c,5).setValue( data.cpf );
+        sheetDB.getRange(c,6).setValue( data.cidade );
+        return 0;
+      }
+    return 99;//Registro não encontrado: Usuário não consta na Base de Dados.
+  }
+  else
+    return 1;//Registo imcompleto: Dados incompletos para a atualização.
+}
+
+/*-----------------------------------------------*/
+//DEVELOPER AREA
+function tProperties(){
+  //  Logger.log( PropertiesService.getUserProperties().getProperty( 'Name' ) );
+  try{
+    Logger.log('PROPERTIES ');
+    var scriptProperties = PropertiesService.getScriptProperties();
+    var userProperties = PropertiesService.getUserProperties();
+    var data = userProperties.getProperties();
+    for (var key in data) {
+      Logger.log('Key: %s, Value: %s', key, data[key]);
+    }
+    
+    //scriptProperties.deleteAllProperties();
+  }
+  catch (err){
+    return err.message;
+  } 
+}
+function getUserProperties(){
+  var userProperties = PropertiesService.getUserProperties();
+  var data = userProperties.getProperties();
+  for (var key in data) {
+    Logger.log('Key: %s, Value: %s', key, data[key]);
+  }
+}
+function tSession(){
+  Logger.log( "SESSION:" );
+  Logger.log( Session.getActiveUser().getEmail() );
+  Logger.log( Session.getActiveUserLocale() );
+  Logger.log( Session.getEffectiveUser().getEmail() );
+  Logger.log( Session.getScriptTimeZone() );
+  Logger.log( Session.getTemporaryActiveUserKey() );
+}
+function tCacheService(){
+  //CacheService.getUserCache().put("pageId", "2");
+  Logger.log( CacheService.getUserCache().get("userRow") );
+}
+function tGetNine(){
+  return 9;
+}
+function resetUserRow(){
+  CacheService.getUserCache().put("userRow", 0);
+}
+function getUserRow(){
+  return CacheService.getUserCache().get("userRow");
+}
+function setUserRow( number ){
+  CacheService.getUserCache().put("userRow", number);
+  Logger.log( CacheService.getUserCache().get("userRow") );
+}
