@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <!--TODO: https://developers.google.com/apps-script/guides/html/best-practices->
+    <body id="body">
+      <font face="Verdana"> 
+        <div id="logo"> 
+          <h1 id="titulo">...</h1> 
+          <hr size="2"> 
+          <h2 id="userName"></h2> 
+          <h4 id="userElements">
+            <p id="userEmail">...</p>
+            <p id="userGodfather">...</p>
+            <p id="userTel">...</p>
+            <p id="userCpf">...</p>
+            <p id="userCity">...</p>
+          </h4> 
+          <hr size="2"> 
+          <div> 
+            <input id="emailInvite" type="email" placeholder="Insira o email para convidar um novo afilhado"><br> 
+            <button class="button convidar" onclick="buttonConvidar()">Convidar</button><br> 
+          </div> 
+          <hr size="2"> 
+          <!--http://stackoverflow.com/questions/15668119/linking-to-another-html-page-in-google-apps-script/16697525-->
+          <?var url = getScriptUrl();?>
+          <a href='<?=url?>?page=Editar'>
+            EDITAR DADOS
+          </a>
+          <hr size="2"> 
+          <div id="networkSize">- Sua rede: ? -</div><br> 
+          <div id="networkList"></div> 
+        </div>
+      </font>
+    </body> 
+
+    <script>
+      function showUser(user)  {
+        document.getElementById('userEmail').innerHTML = user.email;
+        document.getElementById('userName').innerHTML = user.name;
+        document.getElementById('userGodfather').innerHTML = user.godfather;
+        document.getElementById('userTel').innerHTML = user.tel;
+        document.getElementById('userCpf').innerHTML = user.cpf;
+        document.getElementById('userCity').innerHTML = user.city;
+
+        (function(){ //Função executada no 'load' da página
+          document.getElementById('userName').onclick = function(){ //Função armazenada no onclick da div
+            var elem = document.getElementById('userElements');
+            if( elem.style.display == "none" )
+              elem.style.display = "block";
+            else
+              elem.style.display = "none";
+          }
+        })();
+      }
+      function mountDivs(network){
+        document.getElementById('networkSize').innerHTML ="- Sua rede: " +network.length+ " -";
+
+        var c = 0;
+        while(c < network.length){ 
+      
+          var newDiv      = document.createElement("div");
+          var newHeader   = document.createElement("div");
+          var newContent  = document.createElement("div");
+          var newElement;
+              
+          newHeader.className="header";
+          newHeader.value=c;
+          newHeader.appendChild( document.createTextNode( network[c].name ) );
+          
+          newContent.className="element";
+          newElement = document.createElement("p");
+          newElement.appendChild( document.createTextNode( network[c].email ) );
+          newContent.appendChild( newElement );
+          newElement = document.createElement("p");
+          newElement.appendChild( document.createTextNode( network[c].tel ) );
+          newContent.appendChild( newElement );
+          newElement = document.createElement("p");
+          newElement.appendChild( document.createTextNode( network[c].cpf ) );
+          newContent.appendChild( newElement );
+          newElement = document.createElement("p");
+          newElement.appendChild( document.createTextNode( network[c].city ) );
+          newContent.appendChild( newElement );
+          
+          newDiv
+            .appendChild( newHeader )
+            .appendChild( newContent );
+         
+          (function(){ //Função executada no 'load' da página
+            newHeader.onclick = function(){ //Função armazenada no onclick da div
+              var elem = document.getElementsByClassName("element")[this.value];
+              if( elem.style.display == "none" )
+                elem.style.display = "block";
+              else
+                elem.style.display = "none";
+            }
+          })();
+
+          document.getElementById("networkList").appendChild( newDiv );
+          
+          //Executar função em cada 'header' para ocultar os dados dos 'elements'.
+          newHeader.onclick();
+          c++;
+        }
+        var elements = document.getElementsByClassName("element");
+        
+        
+        
+        
+      }
+      document.getElementById("titulo").innerHTML = "Construindo Uma Nova Brasília";
+      google.script.run.withSuccessHandler(showUser).getUser();
+      google.script.run.withSuccessHandler(mountDivs).getNetwork();
+      
+    </script>
+
+</head>
+
+  <style>
+    #logo{
+      background-image: url(https://lh3.googleusercontent.com/ffmou7NNhFQfQ3K7YvDW8pxpjpmzkab8EzI3qJ3E40KmF72tRJmn72Sw_s7qNCSQKoSUMNo6_ufBCpg=w1280-h956), url(https://lh3.googleusercontent.com/c-S_RuchaWSxSLyDnFL2tFDTILau5z7fFbwVDQjnP8pmtgJmbLrb0MuVsvhhQo4PVIHoH1gXxHONKbk=w1280-h956);
+      background-size: 120px 80px, 40px 40px;
+      background-position: center top, center bottom;
+      background-repeat: no-repeat, no-repeat;
+    }
+    #titulo{ color: white; text-shadow: 2px 2px 5px blue;}
+    #subtitulo{ color: white; text-shadow: 2px 2px 5px blue;}
+    #body{ text-align: center; }
+
+    input[type=text], [type=email], [type=tel], select {
+      font-size: 20px;
+      width: 90%;
+      padding: 10px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      background-color: rgb(204, 204, 255);
+      text-align-last:center;      <!--Usado exclusivamatne no select-->
+    }
+
+    .button{
+      /*background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      padding: 16px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 22px;
+      margin: 4px 2px;
+      -webkit-transition-duration: 0.4s; /* Safari */
+      transition-duration: 0.4s;
+      cursor: pointer;
+    }
+    .registrar {
+      background-color: white; 
+      width: 50%;
+      color: black; 
+      border: 2px solid #008CBA;
+    }
+    .registrar:hover {
+      background-color: #008CBA;
+      color: white;
+    }
+  </style>
+
+</html>
+
+<script>
+/*Bom saber*/
+//executar Server-Side: google.script.run.putRowOnUserCache( 999 );
+//Reload page: location.replace( 'https://script.google.com/macros/s/AKfycbykt6vlllcu3gCaRPgLctSd8xV2Ka2tR_eWqCvnuLNo/dev' );
+</script>
